@@ -13,13 +13,10 @@ function TodoList() {
 
   useEffect(() => {
     let list = document.querySelector('.list');
-    console.log(list.offsetHeight);
     var listHeight = list.offsetHeight;
     const maxHeight = window.innerHeight / 2;
     var temp = listHeight < maxHeight ? listHeight : maxHeight;
     setViewHeight(temp);
-    // console.log(todos.length);
-    // console.log(viewHeight);
   }, [todos]);
 
   useEffect(() => {
@@ -27,14 +24,13 @@ function TodoList() {
       height: viewHeight,
       width: "unset",
     });
-    // console.log(scrollStyle);
   }, [viewHeight]);
 
   const addTodo = (todo) => {
     if (!todo.text || /^\s*$/.test(todo.text)) {
       return;
     }
-
+    console.log(todo)
     const newTodos = [todo, ...todos];
 
     setTodos(newTodos);
@@ -46,9 +42,9 @@ function TodoList() {
   };
 
   const updateTodo = (todoId, newValue) => {
-    if (!newValue.text || /^\s*$/.test(newValue.text)) {
-      return;
-    }
+    // if (!newValue.text || /^\s*$/.test(newValue.text)) {
+    //   return;
+    // }
 
     setTodos((prev) =>
       prev.map((item) => (item.id === todoId ? newValue : item))
