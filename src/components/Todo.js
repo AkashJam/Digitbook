@@ -32,7 +32,7 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
       console.log(typeof value, value.value.date);
       value.value.date = calenderDate;
       console.log(value.value.id);
-      updateTodo(value.value.id, value);
+      updateTodo(value.value.id, value.value);
     }
   };
 
@@ -93,7 +93,7 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
                     {edit.id && todo.id === edit.id ? (
                       <Draggable
                       key={todo.id}
-                      draggableId={todo.id.toString()}
+                      draggableId={todo.text}
                       index={index}
                     >
                       {(provided) => (
@@ -110,7 +110,7 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
                     ) : (
                       <Draggable
                         key={todo.id}
-                        draggableId={todo.id.toString()}
+                        draggableId={todo.id}
                         index={index}
                       >
                         {(provided) => (

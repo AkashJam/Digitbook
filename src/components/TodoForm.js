@@ -27,28 +27,29 @@ function TodoForm(props) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    var idgen = Math.floor(Math.random() * 10000).toString();
     props.onSubmit({
-      id: Math.floor(Math.random() * 10000),
+      id: idgen,
       text: input,
       date: null,
     });
 
-    if(inputRef.current.value){
-        // console.log(inputRef.current.value)
-        if(props.edit){
-            toast.success("Task updated", {
-                theme: "colored",
-                hideProgressBar: true,
-                transition: Flip,
-              });
-        } else {
-            toast.success("Task added", {
-              theme: "colored",
-              hideProgressBar: true,
-              transition: Flip,
-            });
-        }
-    }
+    // if(inputRef.current.value){
+    //     // console.log(inputRef.current.value)
+    //     if(props.edit){
+    //         toast.success("Task updated", {
+    //             theme: "colored",
+    //             hideProgressBar: true,
+    //             transition: Flip,
+    //           });
+    //     } else {
+    //         toast.success("Task added", {
+    //           theme: "colored",
+    //           hideProgressBar: true,
+    //           transition: Flip,
+    //         });
+    //     }
+    // }
 
     if(!props.edit) {
         toggling();
