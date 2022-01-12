@@ -7,6 +7,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 
 const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
   const [edit, setEdit] = useState({
+    is: false,
     id: null,
     value: "",
   });
@@ -15,44 +16,54 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
   const [map, setMap] = useState(false);
   const toggleMap = () => {
     setMap(!map);
-  }
+  };
 
-  const [calenderDate, onChange] = useState(new Date());
+  const [calenderDate, setCalenderDate] = useState(new Date());
   const [calender, setCalender] = useState(false);
   const [date, setDate] = useState(null);
   const toggleCalender = (value) => {
     setCalender(!calender);
     if (calender) {
-      if (value) {
-        if (value.value.date) {
-          setDate(value.value.date);
-        }
-      }
-    } else {
-      console.log(typeof value, value.value.date);
-      value.value.date = calenderDate;
-      console.log(value.value.id);
+      value = edit;
+      value.value.date = new Date(calenderDate);
+      console.log(
+        typeof value,
+        value,
+        typeof value.value.date,
+        value.value.date
+      );
+      // var newDate = calenderDate.toString();
+      // console.log("todo id", value.value.id);
       updateTodo(value.value.id, value.value);
+    } else {
+      console.log(value);
+      if (value) {
+        console.log(value.value.date);
+        if(value.value.date){
+          setCalenderDate(new Date(value.value.date));
+        }
+        setEdit({
+          is: false,
+          id: value.value.id,
+          value: value.value,
+        });
+      }
     }
   };
 
+  function onChange(nextValue) {
+    setCalenderDate(nextValue);
+  }
+
   useEffect(() => {
-    var temp = calenderDate.toString().split(" ");
-    var str = "";
-    for (let index = 0; index < 4; index++) {
-      if (index === 3) {
-        str = str.concat(temp[index]);
-      } else {
-        str = str.concat(temp[index], " ");
-      }
-    }
-    setDate(str);
+    setDate(calenderDate.toDateString());
   }, [calenderDate]);
 
   const submitUpdate = (value) => {
     updateTodo(edit.id, value);
     console.log(value);
     setEdit({
+      is: false,
       id: null,
       value: "",
     });
@@ -90,22 +101,22 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
               {todos.map((todo, index) => {
                 return (
                   <div>
-                    {edit.id && todo.id === edit.id ? (
+                    {edit.is && todo.id === edit.id ? (
                       <Draggable
-                      key={todo.id}
-                      draggableId={todo.text}
-                      index={index}
-                    >
-                      {(provided) => (
-                        <div
                         key={todo.id}
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
+                        draggableId={todo.text}
+                        index={index}
                       >
-                      <TodoForm edit={edit} onSubmit={submitUpdate} />
-                      </div>
-                      )}
+                        {(provided) => (
+                          <div
+                            key={todo.id}
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <TodoForm edit={edit} onSubmit={submitUpdate} />
+                          </div>
+                        )}
                       </Draggable>
                     ) : (
                       <Draggable
@@ -144,7 +155,7 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
                               />
                               <FaEdit
                                 onClick={() =>
-                                  setEdit({ id: todo.id, value: todo.text })
+                                  setEdit({ is: true, id: todo.id, value: todo.text })
                                 }
                                 className="edit-icon"
                               />
@@ -172,7 +183,12 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
       {map && (
         <div className="calender" onClick={toggleMap}>
           <div className="modal" onClick={(e) => handleChildElementClick(e)}>
-            <MapContainer style={{ width: "70vh", height: "50vh" }} center={position} zoom={13} scrollWheelZoom={false}>
+            <MapContainer
+              style={{ width: "70vh", height: "50vh" }}
+              center={position}
+              zoom={13}
+              scrollWheelZoom={false}
+            >
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
