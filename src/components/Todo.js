@@ -1,23 +1,99 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import TodoForm from "./TodoForm";
 import { FaClock, FaTimesCircle, FaMapMarkerAlt, FaEdit } from "react-icons/fa";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import Calendar from "react-calendar";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import axios from "axios";
 
 const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
+  //Edit
   const [edit, setEdit] = useState({
     is: false,
     id: null,
     value: "",
   });
-
-  const position = [51.505, -0.09];
-  const [map, setMap] = useState(false);
-  const toggleMap = () => {
-    setMap(!map);
+  const submitUpdate = (value) => {
+    updateTodo(edit.id, value);
+    setEdit({
+      is: false,
+      id: null,
+      value: "",
+    });
   };
 
+  function handleOnDragEnd(result) {
+    console.log(result.destination);
+    if (!result.destination) return;
+
+    const items = Array.from(todos);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    updateTodos(items);
+  }
+
+  //Map
+  const center = {
+    lat: 51.505,
+    lng: -0.09,
+  };
+  const [position, setPosition] = useState(center);
+  const markerRef = useRef(null);
+  const eventHandlers = useMemo(
+    () => ({
+      dragend() {
+        const marker = markerRef.current;
+        if (marker != null) {
+          setPosition(marker.getLatLng());
+        }
+      },
+    }),
+    []
+  );
+  const [map, setMap] = useState(false);
+  const toggleMap = (value) => {
+    setMap(!map);
+    if (map) {
+      value = edit;
+      value.value.location = position;
+      console.log(value.value)
+      updateTodo(value.value.id, value.value);
+      setEdit({
+        is: false,
+        id: null,
+        value: "",
+      });
+    } else {
+      if (value) {
+        if (value.value.location) {
+          setPosition(value.value.location);
+        }
+        setEdit({
+          is: false,
+          id: value.value.id,
+          value: value.value,
+        });
+      }
+    }
+
+    // axios.post(`https://jsonplaceholder.typicode.com/users`, { user })
+    // if (!map) {
+    //   axios
+    //     .get(
+    //       `http://www.overpass-api.de/api/interpreter?data=[out:json];node
+    //       ["amenity"="atm"]
+    //       (41.884387437208,12.480683326721,41.898699521063,12.503321170807);
+    //       out;`
+    //     )
+    //     .then((res) => {
+    //       console.log(res.data);
+    //     });
+    // }
+  };
+  
+
+  //Calender
   const [calenderDate, setCalenderDate] = useState(new Date());
   const [calender, setCalender] = useState(false);
   const [date, setDate] = useState(null);
@@ -26,20 +102,15 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
     if (calender) {
       value = edit;
       value.value.date = new Date(calenderDate);
-      console.log(
-        typeof value,
-        value,
-        typeof value.value.date,
-        value.value.date
-      );
-      // var newDate = calenderDate.toString();
-      // console.log("todo id", value.value.id);
       updateTodo(value.value.id, value.value);
+      setEdit({
+        is: false,
+        id: null,
+        value: "",
+      });
     } else {
-      console.log(value);
       if (value) {
-        console.log(value.value.date);
-        if(value.value.date){
+        if (value.value.date) {
           setCalenderDate(new Date(value.value.date));
         }
         setEdit({
@@ -59,34 +130,9 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
     setDate(calenderDate.toDateString());
   }, [calenderDate]);
 
-  const submitUpdate = (value) => {
-    updateTodo(edit.id, value);
-    console.log(value);
-    setEdit({
-      is: false,
-      id: null,
-      value: "",
-    });
-  };
-
-  // if (edit.id) {
-  //   return <TodoForm edit={edit} onSubmit={submitUpdate} />;
-  // }
-
   const handleChildElementClick = (e) => {
     e.stopPropagation();
   };
-
-  function handleOnDragEnd(result) {
-    console.log(result.destination);
-    if (!result.destination) return;
-
-    const items = Array.from(todos);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    updateTodos(items);
-  }
 
   return (
     <div>
@@ -142,7 +188,7 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
                             </div>
                             <div className="icons">
                               <FaMapMarkerAlt
-                                onClick={toggleMap}
+                                onClick={() => toggleMap({ value: todo })}
                                 className="pointer-icon"
                               />
                               <FaClock
@@ -155,7 +201,11 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
                               />
                               <FaEdit
                                 onClick={() =>
-                                  setEdit({ is: true, id: todo.id, value: todo.text })
+                                  setEdit({
+                                    is: true,
+                                    id: todo.id,
+                                    value: todo.text,
+                                  })
                                 }
                                 className="edit-icon"
                               />
@@ -193,7 +243,12 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <Marker position={position}>
+              <Marker
+                draggable={true}
+                eventHandlers={eventHandlers}
+                position={position}
+                ref={markerRef}
+              >
                 <Popup>
                   A pretty CSS3 popup. <br /> Easily customizable.
                 </Popup>

@@ -32,24 +32,25 @@ function TodoForm(props) {
       id: idgen,
       text: input,
       date: null,
+      location: null,
     });
 
-    // if(inputRef.current.value){
-    //     // console.log(inputRef.current.value)
-    //     if(props.edit){
-    //         toast.success("Task updated", {
-    //             theme: "colored",
-    //             hideProgressBar: true,
-    //             transition: Flip,
-    //           });
-    //     } else {
-    //         toast.success("Task added", {
-    //           theme: "colored",
-    //           hideProgressBar: true,
-    //           transition: Flip,
-    //         });
-    //     }
-    // }
+    if(inputRef.current.value){
+        // console.log(inputRef.current.value)
+        if(props.edit){
+            toast.success("Task updated", {
+                theme: "colored",
+                hideProgressBar: true,
+                transition: Flip,
+              });
+        } else {
+            toast.success("Task added", {
+              theme: "colored",
+              hideProgressBar: true,
+              transition: Flip,
+            });
+        }
+    }
 
     if(!props.edit) {
         toggling();
