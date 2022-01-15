@@ -23,10 +23,8 @@ function App() {
           {/* <Route path="/login">
             <Login />
           </Route> */}
-          <Route path="/todo" element={<Todo />}>
-          </Route>
-          <Route path="/" element={<Home />} >
-          </Route>
+          <Route path="/todo" element={<Todo />}></Route>
+          <Route path="/" element={<Home />}></Route>
         </Routes>
       </div>
     </Router>

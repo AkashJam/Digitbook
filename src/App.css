@@ -26,7 +26,7 @@ body {
 .todo-app {
   display: flex;
   flex-direction: column;
-  justify-content: start;
+  align-items: flex-start;
   background: #161a2b;
   text-align: center;
   border-radius: 10px;
@@ -134,7 +134,7 @@ h1 {
     90deg,
     rgba(93, 12, 255, 1) 0%,
     rgba(155, 0, 250, 1) 100%
-  );        
+  );
 }
 
 .todo-row:nth-child(4n + 2) {
@@ -192,7 +192,7 @@ h1 {
   color: #fff;
 }
 
-.calender {
+.popup {
   position: fixed;
   top: 0;
   left: 0;
@@ -203,6 +203,7 @@ h1 {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  z-index: 1;
 }
 
 .react-calendar__navigation__arrow {

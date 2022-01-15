@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useState } from "react";
 import TodoForm from "./TodoForm";
-import { FaClock, FaTimesCircle, FaMapMarkerAlt, FaEdit } from "react-icons/fa";
+import Task from "./Task";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import Calendar from "react-calendar";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import axios from "axios";
+// import axios from "axios";
+import Map from "./Map";
+import Calendar from "./Calendar";
 
 const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
   //Edit
@@ -34,31 +34,34 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
   }
 
   //Map
+  // axios.post(`https://jsonplaceholder.typicode.com/users`, { user })
+  // if (!map) {
+  //   axios
+  //     .get(
+  //       `http://www.overpass-api.de/api/interpreter?data=[out:json];node
+  //       ["amenity"="atm"]
+  //       (41.884387437208,12.480683326721,41.898699521063,12.503321170807);
+  //       out;`
+  //     )
+  //     .then((res) => {
+  //       console.log(res.data);
+  //     });
+  // }
+
   const center = {
     lat: 51.505,
     lng: -0.09,
   };
   const [position, setPosition] = useState(center);
-  const markerRef = useRef(null);
-  const eventHandlers = useMemo(
-    () => ({
-      dragend() {
-        const marker = markerRef.current;
-        if (marker != null) {
-          setPosition(marker.getLatLng());
-        }
-      },
-    }),
-    []
-  );
   const [map, setMap] = useState(false);
   const toggleMap = (value) => {
     setMap(!map);
     if (map) {
-      value = edit;
-      value.value.location = position;
-      console.log(value.value)
-      updateTodo(value.value.id, value.value);
+      value = edit.value;
+      if (value.location !== position) {
+        value.location = position;
+        updateTodo(value.id, value);
+      }
       setEdit({
         is: false,
         id: null,
@@ -68,6 +71,8 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
       if (value) {
         if (value.value.location) {
           setPosition(value.value.location);
+        } else {
+          setPosition(center);
         }
         setEdit({
           is: false,
@@ -76,33 +81,23 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
         });
       }
     }
-
-    // axios.post(`https://jsonplaceholder.typicode.com/users`, { user })
-    // if (!map) {
-    //   axios
-    //     .get(
-    //       `http://www.overpass-api.de/api/interpreter?data=[out:json];node
-    //       ["amenity"="atm"]
-    //       (41.884387437208,12.480683326721,41.898699521063,12.503321170807);
-    //       out;`
-    //     )
-    //     .then((res) => {
-    //       console.log(res.data);
-    //     });
-    // }
   };
-  
 
   //Calender
-  const [calenderDate, setCalenderDate] = useState(new Date());
+  const [calenderDate, setCalenderDate] = useState(null);
   const [calender, setCalender] = useState(false);
-  const [date, setDate] = useState(null);
   const toggleCalender = (value) => {
     setCalender(!calender);
     if (calender) {
-      value = edit;
-      value.value.date = new Date(calenderDate);
-      updateTodo(value.value.id, value.value);
+      value = edit.value;
+      if (
+        calenderDate &&
+        (value.date === null ||
+          value.date.toDateString() !== calenderDate.toDateString())
+      ) {
+        value.date = new Date(calenderDate);
+        updateTodo(value.id, value);
+      }
       setEdit({
         is: false,
         id: null,
@@ -112,6 +107,8 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
       if (value) {
         if (value.value.date) {
           setCalenderDate(new Date(value.value.date));
+        } else {
+          setCalenderDate(null);
         }
         setEdit({
           is: false,
@@ -121,14 +118,6 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
       }
     }
   };
-
-  function onChange(nextValue) {
-    setCalenderDate(nextValue);
-  }
-
-  useEffect(() => {
-    setDate(calenderDate.toDateString());
-  }, [calenderDate]);
 
   const handleChildElementClick = (e) => {
     e.stopPropagation();
@@ -172,44 +161,19 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
                       >
                         {(provided) => (
                           <div
-                            className={
-                              todo.isComplete ? "todo-row complete" : "todo-row"
-                            }
                             key={todo.id}
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                           >
-                            <div
-                              key={todo.id}
-                              onClick={() => completeTodo(todo.id)}
-                            >
-                              {todo.text}
-                            </div>
-                            <div className="icons">
-                              <FaMapMarkerAlt
-                                onClick={() => toggleMap({ value: todo })}
-                                className="pointer-icon"
-                              />
-                              <FaClock
-                                onClick={() => toggleCalender({ value: todo })}
-                                className="clock-icon"
-                              />
-                              <FaTimesCircle
-                                onClick={() => removeTodo(todo.id)}
-                                className="delete-icon"
-                              />
-                              <FaEdit
-                                onClick={() =>
-                                  setEdit({
-                                    is: true,
-                                    id: todo.id,
-                                    value: todo,
-                                  })
-                                }
-                                className="edit-icon"
-                              />
-                            </div>
+                            <Task
+                              todo={todo}
+                              completeTodo={completeTodo}
+                              removeTodo={removeTodo}
+                              setEdit={setEdit}
+                              toggleCalender={toggleCalender}
+                              toggleMap={toggleMap}
+                            />
                           </div>
                         )}
                       </Draggable>
@@ -222,40 +186,21 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
           )}
         </Droppable>
       </DragDropContext>
-      {calender && (
-        <div className="calender" onClick={toggleCalender}>
-          <div className="modal" onClick={(e) => handleChildElementClick(e)}>
-            <Calendar onChange={onChange} value={calenderDate} />
-            <h1>{date}</h1>
-          </div>
-        </div>
-      )}
       {map && (
-        <div className="calender" onClick={toggleMap}>
-          <div className="modal" onClick={(e) => handleChildElementClick(e)}>
-            <MapContainer
-              style={{ width: "70vh", height: "50vh" }}
-              center={position}
-              zoom={13}
-              scrollWheelZoom={false}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <Marker
-                draggable={true}
-                eventHandlers={eventHandlers}
-                position={position}
-                ref={markerRef}
-              >
-                <Popup>
-                  A pretty CSS3 popup. <br /> Easily customizable.
-                </Popup>
-              </Marker>
-            </MapContainer>
-          </div>
-        </div>
+        <Map
+          position={position}
+          setPosition={setPosition}
+          toggleMap={toggleMap}
+          handleChildElementClick={handleChildElementClick}
+        />
+      )}
+      {calender && (
+        <Calendar
+          calenderDate={calenderDate}
+          setCalenderDate={setCalenderDate}
+          toggleCalender={toggleCalender}
+          handleChildElementClick={handleChildElementClick}
+        />
       )}
     </div>
   );

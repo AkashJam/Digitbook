@@ -12,7 +12,7 @@ function TodoList() {
   });
 
   useEffect(() => {
-    let list = document.querySelector('.list');
+    let list = document.querySelector(".list");
     var listHeight = list.offsetHeight;
     const maxHeight = window.innerHeight / 2;
     var temp = listHeight < maxHeight ? listHeight : maxHeight;
@@ -45,7 +45,7 @@ function TodoList() {
     // if (!newValue.text || /^\s*$/.test(newValue.text)) {
     //   return;
     // }
-
+    console.log(newValue);
     setTodos((prev) =>
       prev.map((item) => (item.id === todoId ? newValue : item))
     );
@@ -58,13 +58,17 @@ function TodoList() {
   };
 
   const completeTodo = (id) => {
-    let updatedTodos = todos.map((todo) => {
-      if (todo.id === id) {
-        todo.isComplete = !todo.isComplete;
-      }
-      return todo;
-    });
-    setTodos(updatedTodos);
+    // let updatedTodos = todos.map((todo) => {
+    //   if (todo.id === id) {
+    //     todo.isComplete = !todo.isComplete;
+    //   }
+    //   return todo;
+    // });
+    // setTodos(updatedTodos);
+    let updatedTodo = todos.filter((todo) => todo.id === id);
+    updatedTodo = updatedTodo[0];
+    updatedTodo.isComplete = !updatedTodo.isComplete;
+    updateTodo(updatedTodo.id, updatedTodo);
   };
 
   return (
