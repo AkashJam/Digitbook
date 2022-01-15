@@ -5,7 +5,7 @@ import { FaPlus } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 
 function TodoForm(props) {
-  const [input, setInput] = useState(props.edit ? props.edit.value : "");
+  const [input, setInput] = useState(props.edit ? props.edit.value.text : "");
   const [toggle, setToggle] = useState(false);
 
   const inputRef = useRef(null);
@@ -27,33 +27,41 @@ function TodoForm(props) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    var idgen = Math.floor(Math.random() * 10000).toString();
-    props.onSubmit({
-      id: idgen,
-      text: input,
-      date: null,
-      location: null,
-    });
-
-    if(inputRef.current.value){
-        // console.log(inputRef.current.value)
-        if(props.edit){
-            toast.success("Task updated", {
-                theme: "colored",
-                hideProgressBar: true,
-                transition: Flip,
-              });
-        } else {
-            toast.success("Task added", {
-              theme: "colored",
-              hideProgressBar: true,
-              transition: Flip,
-            });
-        }
+    if (props.edit) {
+      props.onSubmit({
+        id: props.edit.id,
+        text: input,
+        date: props.edit.value.date,
+        location: props.edit.value.location,
+        isComplete: props.edit.value.isComplete,
+      });
+      if (inputRef.current.value) {
+        toast.success("Task updated", {
+          theme: "colored",
+          hideProgressBar: true,
+          transition: Flip,
+        });
+      }
+    } else {
+      var idgen = Math.floor(Math.random() * 10000).toString();
+      props.onSubmit({
+        id: idgen,
+        text: input,
+        date: null,
+        location: null,
+        isComplete: false,
+      });
+      if (inputRef.current.value) {
+        toast.success("Task added", {
+          theme: "colored",
+          hideProgressBar: true,
+          transition: Flip,
+        });
+      }
     }
 
-    if(!props.edit) {
-        toggling();
+    if (!props.edit) {
+      toggling();
     }
 
     setInput("");
@@ -61,7 +69,9 @@ function TodoForm(props) {
 
   return (
     <div className="todo-form">
-      {!toggle && !props.edit && <FaPlus className="add-icon" onClick={toggling} />}
+      {!toggle && !props.edit && (
+        <FaPlus className="add-icon" onClick={toggling} />
+      )}
       <form onSubmit={handleSubmit}>
         {props.edit ? (
           <>

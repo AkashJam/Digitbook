@@ -23,7 +23,7 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
   };
 
   function handleOnDragEnd(result) {
-    console.log(result.destination);
+    // console.log(result.destination);
     if (!result.destination) return;
 
     const items = Array.from(todos);
@@ -204,7 +204,7 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
                                   setEdit({
                                     is: true,
                                     id: todo.id,
-                                    value: todo.text,
+                                    value: todo,
                                   })
                                 }
                                 className="edit-icon"
