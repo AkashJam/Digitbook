@@ -3,8 +3,8 @@ import TodoForm from "./TodoForm";
 import Task from "./Task";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 // import axios from "axios";
-import Map from "./Map";
-import Calendar from "./Calendar";
+import Maps from "../Modal/Map";
+import Calendar from "../Modal/Calendar";
 
 const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
   //Edit
@@ -33,7 +33,7 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
     updateTodos(items);
   }
 
-  //Map
+  // Map
   // axios.post(`https://jsonplaceholder.typicode.com/users`, { user })
   // if (!map) {
   //   axios
@@ -48,18 +48,14 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
   //     });
   // }
 
-  const center = {
-    lat: 51.505,
-    lng: -0.09,
-  };
-  const [position, setPosition] = useState(center);
+  const [location, setLocation] = useState(null);
   const [map, setMap] = useState(false);
   const toggleMap = (value) => {
     setMap(!map);
     if (map) {
       value = edit.value;
-      if (value.location !== position) {
-        value.location = position;
+      if (value.location !== location) {
+        value.location = location;
         updateTodo(value.id, value);
       }
       setEdit({
@@ -70,9 +66,9 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
     } else {
       if (value) {
         if (value.value.location) {
-          setPosition(value.value.location);
+          setLocation(value.value.location);
         } else {
-          setPosition(center);
+          setLocation(null);
         }
         setEdit({
           is: false,
@@ -83,7 +79,7 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
     }
   };
 
-  //Calender
+  // Calender
   const [calenderDate, setCalenderDate] = useState(null);
   const [calender, setCalender] = useState(false);
   const toggleCalender = (value) => {
@@ -187,9 +183,9 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
         </Droppable>
       </DragDropContext>
       {map && (
-        <Map
-          position={position}
-          setPosition={setPosition}
+        <Maps
+          location={location}
+          setLocation={setLocation}
           toggleMap={toggleMap}
           handleChildElementClick={handleChildElementClick}
         />

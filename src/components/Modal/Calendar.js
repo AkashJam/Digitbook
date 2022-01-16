@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactCalendar from "react-calendar";
+import "./Modal.css";
 
 const Calendar = ({
   calenderDate,

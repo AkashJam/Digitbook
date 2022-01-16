@@ -18,11 +18,11 @@ const Task = ({
         <div className="icons">
           <FaMapMarkerAlt
             onClick={() => toggleMap({ value: todo })}
-            className="pointer-icon"
+            className={todo.location ? "pointer-icon" : "pointer-icon dull"}
           />
           <FaClock
             onClick={() => toggleCalender({ value: todo })}
-            className="clock-icon"
+            className={todo.date ? "clock-icon" : "clock-icon dull"}
           />
           <FaTimesCircle
             onClick={() => removeTodo(todo.id)}
