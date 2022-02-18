@@ -21,6 +21,11 @@
   width: 45px;
   height: 45px;
 }
+
+.link {
+  text-decoration: none;
+}
+
 .nav-options {
   padding-left: 25px;
   display: grid;
@@ -59,7 +64,7 @@
 .mobile-menu {
   display: none;
 }
-@media (max-width: 648px) {
+@media (max-width: 540px) {
   /*Mobile View */
   .header {
     padding: 0px 10px;

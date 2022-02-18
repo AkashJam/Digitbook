@@ -28,25 +28,31 @@ function TodoForm(props) {
     e.preventDefault();
 
     if (props.edit) {
-      props.onSubmit({
-        id: props.edit.id,
-        text: input,
-        date: props.edit.value.date,
-        location: props.edit.value.location,
-        isComplete: props.edit.value.isComplete,
-      });
-      if (inputRef.current.value) {
-        toast.success("Task updated", {
-          theme: "colored",
-          hideProgressBar: true,
-          transition: Flip,
+      if(props.edit.value.text!== input) {
+        props.onSubmit({
+          id: props.edit.id,
+          text: input,
+          group: props.edit.value.group,
+          date: props.edit.value.date,
+          location: props.edit.value.location,
+          isComplete: props.edit.value.isComplete,
         });
+        if (inputRef.current.value) {
+          toast.success("Task updated", {
+            theme: "colored",
+            hideProgressBar: true,
+            transition: Flip,
+          });
+        }
+      } else {
+        props.onCancel();
       }
     } else {
       var idgen = Math.floor(Math.random() * 10000).toString();
       props.onSubmit({
         id: idgen,
         text: input,
+        group: props.group,
         date: null,
         location: null,
         isComplete: false,

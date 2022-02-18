@@ -4,21 +4,28 @@ import Todo from "./Todo";
 import { Scrollbars } from "react-custom-scrollbars";
 import "./Todo.css";
 
-function TodoList() {
-  const [todos, setTodos] = useState([]);
+const TodoList = ({ group }) => {
+  const tasks = JSON.parse(localStorage.getItem("tasks"));
+  console.log(tasks);
+  const [todos, setTodos] = useState([]); //Get tasks from API based on group
+  // const [todosGroup, setTodosGroup] = useState([]);
   const [viewHeight, setViewHeight] = useState(0);
   const [scrollStyle, setScrollStyle] = useState({
     height: viewHeight,
     width: "unset",
   });
 
+  // useEffect(() => {
+  //   const newTodos = [...todos].filter((todo) => todo.group === group);
+  //   setTodosGroup(newTodos);
+  // }, [todos, group]);
+
   useEffect(() => {
-    let list = document.querySelector(".list");
-    var listHeight = list.offsetHeight;
-    const maxHeight = window.innerHeight / 2;
-    var temp = listHeight < maxHeight ? listHeight : maxHeight;
-    setViewHeight(temp);
+    const list = document.querySelector(".list");
+    //console.log(list.offsetHeight);
+    setViewHeight(list.offsetHeight);
   }, [todos]);
+  // }, [todosGroup]);
 
   useEffect(() => {
     setScrollStyle({
@@ -27,21 +34,25 @@ function TodoList() {
     });
   }, [viewHeight]);
 
+  //Need API request to add new task
   const addTodo = (todo) => {
     if (!todo.text || /^\s*$/.test(todo.text)) {
       return;
     }
     // console.log(todo)
     const newTodos = [todo, ...todos];
-
     setTodos(newTodos);
+    localStorage.setItem("tasks", JSON.stringify(newTodos));
   };
 
+  //Need API request to update task position
   const updateTodos = (todos) => {
     setTodos(todos);
-    // console.log(...todos);
+    // setTodosGroup(todos);
+    console.log(...todos);
   };
 
+  //Need API request for updating task
   const updateTodo = (todoId, newValue) => {
     // if (!newValue.text || /^\s*$/.test(newValue.text)) {
     //   return;
@@ -52,6 +63,7 @@ function TodoList() {
     );
   };
 
+  //Need API request to update task status to deleted
   const removeTodo = (id) => {
     const removedArr = [...todos].filter((todo) => todo.id !== id);
 
@@ -74,8 +86,7 @@ function TodoList() {
 
   return (
     <>
-      <h1>What's the Plan for Today?</h1>
-      <TodoForm onSubmit={addTodo} />
+      <TodoForm group={group} onSubmit={addTodo} />
       <Scrollbars className="scroll" style={scrollStyle}>
         <div className="list">
           <Todo
@@ -89,6 +100,6 @@ function TodoList() {
       </Scrollbars>
     </>
   );
-}
+};
 
 export default TodoList;

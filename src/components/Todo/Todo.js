@@ -13,13 +13,18 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
     id: null,
     value: "",
   });
-  const submitUpdate = (value) => {
-    updateTodo(edit.id, value);
+
+  const resetUpdate = () => {
     setEdit({
       is: false,
       id: null,
       value: "",
     });
+  };
+
+  const submitUpdate = (value) => {
+    updateTodo(edit.id, value);
+    resetUpdate();
   };
 
   function handleOnDragEnd(result) {
@@ -39,7 +44,7 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
   //   axios
   //     .get(
   //       `http://www.overpass-api.de/api/interpreter?data=[out:json];node
-  //       ["amenity"="atm"]
+  //       ["shop"="supermarket"]
   //       (41.884387437208,12.480683326721,41.898699521063,12.503321170807);
   //       out;`
   //     )
@@ -58,11 +63,7 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
         value.location = location;
         updateTodo(value.id, value);
       }
-      setEdit({
-        is: false,
-        id: null,
-        value: "",
-      });
+      resetUpdate();
     } else {
       if (value) {
         if (value.value.location) {
@@ -94,11 +95,7 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
         value.date = new Date(calenderDate);
         updateTodo(value.id, value);
       }
-      setEdit({
-        is: false,
-        id: null,
-        value: "",
-      });
+      resetUpdate();
     } else {
       if (value) {
         if (value.value.date) {
@@ -131,50 +128,37 @@ const Todo = ({ todos, completeTodo, removeTodo, updateTodo, updateTodos }) => {
             >
               {todos.map((todo, index) => {
                 return (
-                  <div>
-                    {edit.is && todo.id === edit.id ? (
-                      <Draggable
+                  <Draggable
+                    key={todo.id}
+                    draggableId={todo.text}
+                    index={index}
+                  >
+                    {(provided) => (
+                      <div
                         key={todo.id}
-                        draggableId={todo.text}
-                        index={index}
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
                       >
-                        {(provided) => (
-                          <div
-                            key={todo.id}
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                          >
-                            <TodoForm edit={edit} onSubmit={submitUpdate} />
-                          </div>
+                        {edit.is && todo.id === edit.id ? (
+                          <TodoForm
+                            edit={edit}
+                            onSubmit={submitUpdate}
+                            onCancel={resetUpdate}
+                          />
+                        ) : (
+                          <Task
+                            todo={todo}
+                            completeTodo={completeTodo}
+                            removeTodo={removeTodo}
+                            setEdit={setEdit}
+                            toggleCalender={toggleCalender}
+                            toggleMap={toggleMap}
+                          />
                         )}
-                      </Draggable>
-                    ) : (
-                      <Draggable
-                        key={todo.id}
-                        draggableId={todo.id}
-                        index={index}
-                      >
-                        {(provided) => (
-                          <div
-                            key={todo.id}
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                          >
-                            <Task
-                              todo={todo}
-                              completeTodo={completeTodo}
-                              removeTodo={removeTodo}
-                              setEdit={setEdit}
-                              toggleCalender={toggleCalender}
-                              toggleMap={toggleMap}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
+                      </div>
                     )}
-                  </div>
+                  </Draggable>
                 );
               })}
               {provided.placeholder}
